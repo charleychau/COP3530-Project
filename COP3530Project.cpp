@@ -9,9 +9,10 @@ struct realmNode
 {
 	string charm;                                     //contains the string of realm (charm)
 	int lis;                                          //contains LIS value
+	int sumLIS;
 	vector<realmNode*> accessibleRealms;              //vector containing all accessible realms
 
-	realmNode(string c, int l) : charm(c), lis(l) {}  //constructor for realmNode
+	realmNode(string c, int l, int s) : charm(c), lis(l), sumLIS(s) {}  //constructor for realmNode
 
 	void addAcessibleRealm(realmNode* aR)             //add accessible realm
 	{
@@ -27,27 +28,50 @@ struct realmNode
 
 //computes the Longest Increasing Subsequence
 //used to determine if possible to move to other realms
+int sum;  //global variable sum holds sumLIS
 int LIS(int magiPowerOrder[], int MPOsize)
 {
 	int longest = 0, mpiLength = 0, tempLength = 0;
 	mpiLength = MPOsize;
 	int temp[mpiLength];                             //create array to keep track of LSI
+        int sum2=0;
+        sum=0;
+        bool change = false;
 
 	for (int k = 0; k < mpiLength; k++)               //traverse magi
 	{
 		if (k == 0)
 		{
 			temp[k] = magiPowerOrder[k];                //Put first element in LSI list
+                        sum += magiPowerOrder[k];
+                        sum2 = sum;
 		}
 		else
 		{
 			if (temp[tempLength] < magiPowerOrder[k])  //if new value larger than largest in set
 			{
 				temp[++tempLength] = magiPowerOrder[k];   //append new value to set
+                                if(sum != sum2 && change == true)
+                                {
+                                  sum = sum2;
+                                }
+                                sum += magiPowerOrder[k];
+                                sum2 = sum;
+                                change = false;
 			}
 			else if (temp[0] > magiPowerOrder[k])      //if new value less than smallest in set
 			{
-				temp[0] = magiPowerOrder[k];              //replace smallest value with new value
+                                if(tempLength == 0)
+                                {
+                                  temp[0] = magiPowerOrder[k];
+                                  sum = temp[0];
+                                }
+                                else
+                                {
+                                  sum2 -= temp[0];
+				  temp[0] = magiPowerOrder[k];              //replace smallest value with new value
+                                  sum2 += temp[0];
+                                }
 			}
 			else                                        //binary search (nlogn)
 			{
@@ -76,7 +100,17 @@ int LIS(int magiPowerOrder[], int MPOsize)
 				}
 				else
 				{
+                                        sum2 -= temp[m];
 					temp[m] = magiPowerOrder[k];  //replace first larger-than-new-value with new value
+                                        sum2 += temp[m];
+                                        if( m == tempLength )
+                                        {
+                                          change = true;
+                                        }
+                                        else
+                                        {
+                                          change = false;
+                                        }
 				}
 			}
 		}
@@ -155,14 +189,14 @@ int main()
 			cin >> MagiPowerOrder[j];                     //get rank of magi
 		}
 		int lis = LIS(MagiPowerOrder, numMagi);         //compute Longest Increasing Substring (LIS)
-		realms.push_back(new realmNode(charm, lis));  //create realm with charm and LIS
+		realms.push_back(new realmNode(charm, lis, sum));  //create realm with charm and LIS
 	}
 	cin >> source >> destination;                     //get source charm and destination charm
 
 
-	for (int k = 0; k < realms.size(); k++)            //FOR TESTING, outputs realm charm and LIS
+	for (int k = 0; k < realms.size(); k++)            //FOR TESTING, outputs realm charm, LIS, and sumLIS
 	{
-		cout << realms[k]->charm << " " << realms[k]->lis << endl;
+		cout << realms[k]->charm << " " << realms[k]->lis << " " << realms[k]->sumLIS << endl;
 	}
 	cout << "Source: " << source << "  Destination: " << destination << endl;
 
