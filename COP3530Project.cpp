@@ -129,7 +129,7 @@ int minimum(int x, int y, int z)
 //used to compare with LIS amount to determine if possible to move to other realms
 int editDistance(string currCharm, string destCharm)
 {
-	vector<vector<int>> matrix(currCharm.length() + 1, vector<int>(destCharm.length() + 1)); //creates a 2D matrix of the minimum edit distances
+	vector<vector<int> > matrix(currCharm.length() + 1, vector<int>(destCharm.length() + 1)); //creates a 2D matrix of the minimum edit distances
 
 	for (int i = 0; i < currCharm.length() + 1; i++)		//populates the first row with editDistance of the string and nothing
 	{
