@@ -262,9 +262,9 @@ int main()
 	int numRealms = 0, numMagi = 0;
 	string charm = "", source = "", destination = "";
 
-	//cin >> numRealms;                                 //get number of realms
+	cin >> numRealms;                                 //get number of realms
 
-	numRealms = 4;
+	//numRealms = 4;
 
 	// Allocate 2D Graph array 
 	int **Graph = new int*[numRealms];
@@ -276,7 +276,6 @@ int main()
 
 	// TODO:  Shane needs to populate this array 
 
-	/**
 
 
 	vector<realmNode*> realms;                        //vector containing all realms
@@ -300,11 +299,24 @@ int main()
 
 	for (int k = 0; k < realms.size(); k++)            //FOR TESTING, outputs realm charm, LIS, and sumLIS
 	{
-	cout << realms[k]->charm << " " << realms[k]->lis << " " << realms[k]->sumLIS << endl;
+	  cout << realms[k]->charm << " LIS:" << realms[k]->lis << " sumLIS:" << realms[k]->sumLIS << endl;
+          for (int l = 0; l < realms.size(); l++)
+          {
+            if( k != l )
+            {
+              int ed = editDistance( realms[k]->charm, realms[l]->charm ); 
+              if( canTravel( realms[k]->lis, ed ) )
+              {
+                Graph[k][l] = ed;
+                cout << "Graph[" << k << "][" << l << "] = " << ed << endl;
+              }
+            }
+          }
+          cout << endl;
 	}
 	cout << "Source: " << source << "  Destination: " << destination << endl;
 
-	**/
+
 
 
 	//need to connect realms to other accessible realms using canTravel and editDistance functions
@@ -323,9 +335,9 @@ int main()
 
 	// Input 2
 
-	Graph[0][1] = 4;
-	Graph[1][0] = 4;
-	Graph[1][2] = 4;
+	//Graph[0][1] = 4;
+	//Graph[1][0] = 4;
+	//Graph[1][2] = 4;
 
 	// NOTE - When you do your part Shane this is how the graph should be realized 
 	// Source realm = row index
