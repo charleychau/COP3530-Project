@@ -11,32 +11,26 @@ struct realmNode
 	string charm;                                     //contains the string of realm (charm)
 	int lis;                                          //contains LIS value
 	int sumLIS;
-	vector<realmNode*> accessibleRealms;              //vector containing all accessible realms
+        int *sumArr;
 
-	realmNode(string c, int l, int s) : charm(c), lis(l), sumLIS(s) {}  //constructor for realmNode
-
-	void addAcessibleRealm(realmNode* aR)             //add accessible realm
-	{
-		accessibleRealms.push_back(aR);
-	}
-
-	int numAccessibleRealms()                         //get number of accessible realms
-	{
-		return accessibleRealms.size();
-	}
+	realmNode(string c, int l, int s, int sa[]) : charm(c), lis(l), sumLIS(s), sumArr(sa) {}  //constructor for realmNode
 };
 
 
 //computes the Longest Increasing Subsequence
 //used to determine if possible to move to other realms
 int sum;  //global variable sum holds sumLIS
+int tempLength;
+int *lisArr;
 int LIS(int magiPowerOrder[], int MPOsize)
 {
-	int longest = 0, mpiLength = 0, tempLength = 0;
+	int longest = 0, mpiLength = 0;
+        tempLength = 0;
 	mpiLength = MPOsize;
 
 	int *temp = new int[mpiLength];   // create array to keep track of LSI
-
+int *sums = new int[mpiLength];
+int *sums2 = new int[mpiLength];
 									  //int temp[mpiLength];                             //create array to keep track of LSI
 	int sum2 = 0;
 	sum = 0;
@@ -48,7 +42,9 @@ int LIS(int magiPowerOrder[], int MPOsize)
 		{
 			temp[k] = magiPowerOrder[k];                //Put first element in LSI list
 			sum += magiPowerOrder[k];
+sums[k] = magiPowerOrder[k];
 			sum2 = sum;
+sums2[k] = magiPowerOrder[k];
 		}
 		else
 		{
@@ -58,9 +54,12 @@ int LIS(int magiPowerOrder[], int MPOsize)
 				if (sum != sum2 && change == true)
 				{
 					sum = sum2;
+sums = sums2;
 				}
 				sum += magiPowerOrder[k];
+sums[tempLength] = sums[tempLength-1] + magiPowerOrder[k];
 				sum2 = sum;
+sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
 				change = false;
 			}
 			else if (temp[0] > magiPowerOrder[k])      //if new value less than smallest in set
@@ -69,12 +68,14 @@ int LIS(int magiPowerOrder[], int MPOsize)
 				{
 					temp[0] = magiPowerOrder[k];
 					sum = temp[0];
+sums2[0] = sum;
 				}
 				else
 				{
 					sum2 -= temp[0];
 					temp[0] = magiPowerOrder[k];              //replace smallest value with new value
 					sum2 += temp[0];
+sums2[0] = sum2;
 				}
 			}
 			else                                        //binary search (nlogn)
@@ -107,6 +108,10 @@ int LIS(int magiPowerOrder[], int MPOsize)
 					sum2 -= temp[m];
 					temp[m] = magiPowerOrder[k];  //replace first larger-than-new-value with new value
 					sum2 += temp[m];
+for(int t=1; t < m+1; t++)
+{
+  sums2[t] = sums2[t-1] + temp[t];
+}
 					if (m == tempLength)
 					{
 						change = true;
@@ -119,6 +124,7 @@ int LIS(int magiPowerOrder[], int MPOsize)
 			}
 		}
 	}
+lisArr = sums;
 	return (tempLength + 1);  //return LIS
 }
 
@@ -176,8 +182,13 @@ bool canTravel(int lis, int minEditDistance)
 	}
 }
 
+struct graphNode
+{
+  int weight;
+  int gems;
+};
 
-int shortestPath(int *Graph[], int numRealms, int sourceVertex, int destinationVertex);    // Dijkstra Algorithm 
+int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destinationVertex);    // Dijkstra Algorithm 
 /*
 shortestPath - Calculates the shortest path between the realms
 @ param - int *Graph - pointer to 2D array to hold the realms.
@@ -186,23 +197,29 @@ shortestPath - Calculates the shortest path between the realms
 @ param - int destinationVertex - destination realm.
 @ returns - int shortest path or -1 if no shortest path found.
 */
-int shortestPath(int *Graph[], int numRealms, int sourceVertex, int destinationVertex)
+int numGems;
+int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destinationVertex)
 {
 	int shortPath = 0;
+numGems = 0;
 
 	vector<int> dist(numRealms);
 
 	vector<bool> vist(numRealms);
+
+vector<int> gems(numRealms);
 
 	for (int i = 0; i < numRealms; i++)
 	{
 		dist[i] = INT_MAX;      // Make all distance to realms inifinity 
 
 		vist[i] = false;        // Make visited realms all false 
+
+gems[i] = 0;
 	}
 
 	dist[sourceVertex] = 0;     // Make distance from source vertex to itself zero
-
+gems[sourceVertex] = 0;
 	int i = 0;
 
 	for (i = 0; i < numRealms; i++)
@@ -228,6 +245,7 @@ int shortestPath(int *Graph[], int numRealms, int sourceVertex, int destinationV
 		if (index == destinationVertex)
 		{
 			shortPath = dist[index];
+numGems = gems[index];
 
 			if (shortPath == INT_MAX)
 				return -1;
@@ -238,15 +256,18 @@ int shortestPath(int *Graph[], int numRealms, int sourceVertex, int destinationV
 		for (int j = 0; j < numRealms; j++)
 		{
 			int distance = 0;
+int ng = 0;
 
-			if (vist[j] == false && Graph[index][j] > 0)
+			if (vist[j] == false && Graph[index][j].weight > 0)
 			{
 
-				distance = dist[index] + Graph[index][j];
+				distance = dist[index] + Graph[index][j].weight;
+ng = gems[index] + Graph[index][j].gems;
 
 				if (distance < dist[j])
 				{
 					dist[j] = distance;
+gems[j] = ng;
 				}
 			}
 		}
@@ -267,11 +288,11 @@ int main()
 	//numRealms = 4;
 
 	// Allocate 2D Graph array 
-	int **Graph = new int*[numRealms];
+	graphNode **Graph = new graphNode*[numRealms];
 
 	for (int i = 0; i < numRealms; i++)
 	{
-		Graph[i] = new int[numRealms];
+		Graph[i] = new graphNode[numRealms];
 	}
 
 	// TODO:  Shane needs to populate this array 
@@ -292,14 +313,15 @@ int main()
 	cin >> MagiPowerOrder[j];                     //get rank of magi
 	}
 	int lis = LIS(MagiPowerOrder, numMagi);         //compute Longest Increasing Substring (LIS)
-	realms.push_back(new realmNode(charm, lis, sum));  //create realm with charm and LIS
+//cout << lisArr[tempLength] << " " << lisArr[tempLength-1] << " " << lisArr[tempLength-2] << endl;
+	realms.push_back(new realmNode(charm, lis, sum, lisArr));  //create realm with charm and LIS
 	}
 	cin >> source >> destination;                     //get source charm and destination charm
 
 
 	for (int k = 0; k < realms.size(); k++)            //FOR TESTING, outputs realm charm, LIS, and sumLIS
 	{
-	  cout << realms[k]->charm << " LIS:" << realms[k]->lis << " sumLIS:" << realms[k]->sumLIS << endl;
+//	  cout << realms[k]->charm << " LIS:" << realms[k]->lis << " sumLIS:" << realms[k]->sumLIS << endl;
           for (int l = 0; l < realms.size(); l++)
           {
             if( k != l )
@@ -307,14 +329,16 @@ int main()
               int ed = editDistance( realms[k]->charm, realms[l]->charm ); 
               if( canTravel( realms[k]->lis, ed ) )
               {
-                Graph[k][l] = ed;
-                cout << "Graph[" << k << "][" << l << "] = " << ed << endl;
+//cout << realms[k]->sumArr[ed-1] << " " << realms[k]->sumArr[ed-2] << endl;
+                Graph[k][l].weight = ed;
+                Graph[k][l].gems = realms[k]->sumArr[ed-1];
+//                cout << "Graph[" << k << "][" << l << "] = " << ed << endl;
               }
             }
           }
-          cout << endl;
+//          cout << endl;
 	}
-	cout << "Source: " << source << "  Destination: " << destination << endl;
+//	cout << "Source: " << source << "  Destination: " << destination << endl;
 
 
 
@@ -343,22 +367,38 @@ int main()
 	// Source realm = row index
 	// Destination realm = column index
 
-	int path2 = shortestPath(Graph, numRealms, 2, 0);
+        int s=0, d=0;
+        for(int i = 0; i < realms.size() && (s==0 || d==0) ; i++)
+        {
+          if(source == realms[i]->charm)
+          {
+            s = i;
+          }
+          if(destination == realms[i]->charm)
+          {
+            d = i;
+          }
+        }
+//        cout << s << " " << d << endl;
 
-	int path = shortestPath(Graph, numRealms, 0, 2);
+	int path2 = shortestPath(Graph, numRealms, s, d);
+
+//	int path = shortestPath(Graph, numRealms, d, s);
 
 	if (path2 > 0)
 	{
-		cout << path2 << endl << endl;
+		cout << path2 << " " << numGems << endl;
 	}
 	else
 	{
 		cout << "IMPOSSIBLE" << endl;
 	}
 
+        int path = shortestPath(Graph, numRealms, d, s);
+
 	if (path > 0)
 	{
-		cout << path << endl << endl;
+		cout << path << " " << numGems << endl;
 	}
 	else
 	{
