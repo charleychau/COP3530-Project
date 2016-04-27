@@ -11,9 +11,9 @@ struct realmNode
 	string charm;                                     //contains the string of realm (charm)
 	int lis;                                          //contains LIS value
 	int sumLIS;
-        int *sumArr;
+        vector<int> sumArr;
 
-	realmNode(string c, int l, int s, int sa[]) : charm(c), lis(l), sumLIS(s), sumArr(sa) {}  //constructor for realmNode
+	realmNode(string c, int l, int s) : charm(c), lis(l), sumLIS(s) {}  //constructor for realmNode
 };
 
 
@@ -29,8 +29,9 @@ int LIS(int magiPowerOrder[], int MPOsize)
 	mpiLength = MPOsize;
 
 	int *temp = new int[mpiLength];   // create array to keep track of LSI
-int *sums = new int[mpiLength];
-int *sums2 = new int[mpiLength];
+        int *temp2 = new int[mpiLength];
+//int *sums = new int[mpiLength];
+//int *sums2 = new int[mpiLength];
 									  //int temp[mpiLength];                             //create array to keep track of LSI
 	int sum2 = 0;
 	sum = 0;
@@ -41,25 +42,29 @@ int *sums2 = new int[mpiLength];
 		if (k == 0)
 		{
 			temp[k] = magiPowerOrder[k];                //Put first element in LSI list
+                        temp2[k] = magiPowerOrder[k];
 			sum += magiPowerOrder[k];
-sums[k] = magiPowerOrder[k];
+//sums[k] = magiPowerOrder[k];
 			sum2 = sum;
-sums2[k] = magiPowerOrder[k];
+//sums2[k] = magiPowerOrder[k];
 		}
 		else
 		{
-			if (temp[tempLength] < magiPowerOrder[k])  //if new value larger than largest in set
+			if (temp2[tempLength] < magiPowerOrder[k])  //if new value larger than largest in set
 			{
 				temp[++tempLength] = magiPowerOrder[k];   //append new value to set
+                                temp2[tempLength] = magiPowerOrder[k];
+//cout << magiPowerOrder[k] << endl;
 				if (sum != sum2 && change == true)
 				{
 					sum = sum2;
-sums = sums2;
+                                        temp = temp2;
+//sums = sums2;
 				}
 				sum += magiPowerOrder[k];
-sums[tempLength] = sums[tempLength-1] + magiPowerOrder[k];
+//sums[tempLength] = sums[tempLength-1] + magiPowerOrder[k];
 				sum2 = sum;
-sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
+//sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
 				change = false;
 			}
 			else if (temp[0] > magiPowerOrder[k])      //if new value less than smallest in set
@@ -67,16 +72,18 @@ sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
 				if (tempLength == 0)
 				{
 					temp[0] = magiPowerOrder[k];
+                                        temp2[0] = magiPowerOrder[k];
 					sum = temp[0];
-sums[0] = sum;
-sums2[0] = sum;
+//sums[0] = sum;
+//sums2[0] = sum;
 				}
 				else
 				{
 					sum2 -= temp[0];
-					temp[0] = magiPowerOrder[k];              //replace smallest value with new value
+					//temp[0] = magiPowerOrder[k];              //replace smallest value with new value
+                                        temp2[0] = magiPowerOrder[k];
 					sum2 += temp[0];
-sums2[0] = sum2;
+//sums2[0] = sum2;
 				}
 			}
 			else                                        //binary search (nlogn)
@@ -107,12 +114,12 @@ sums2[0] = sum2;
 				else
 				{
 					sum2 -= temp[m];
-					temp[m] = magiPowerOrder[k];  //replace first larger-than-new-value with new value
+					temp2[m] = magiPowerOrder[k];  //replace first larger-than-new-value with new value
 					sum2 += temp[m];
-for(int t=1; t < m+1; t++)
-{
-  sums2[t] = sums2[t-1] + temp[t];
-}
+//for(int t=1; t < m+1; t++)
+//{
+//  sums2[t] = sums2[t-1] + temp[t];
+//}
 					if (m == tempLength)
 					{
 						change = true;
@@ -125,8 +132,16 @@ for(int t=1; t < m+1; t++)
 			}
 		}
 	}
-lisArr = sums;
-//cout << lisArr[tempLength] << endl;
+        int *a = new int[tempLength+1];
+        a[0] = temp[0];
+	for(int g = 1; g < tempLength+1; g++)
+	{
+	  a[g] = a[g-1] + temp[g];
+	//  cout << a[g] << " ";
+	}
+	//cout << endl;
+	lisArr = a;
+	//cout << " " << tempLength + 1 << " " << sum << " " << lisArr[tempLength] << endl;
 	return (tempLength + 1);  //return LIS
 }
 
@@ -316,7 +331,13 @@ int main()
 	}
 	int lis = LIS(MagiPowerOrder, numMagi);         //compute Longest Increasing Substring (LIS)
 //cout << lisArr[tempLength] << " " << lisArr[tempLength-1] << " " << lisArr[tempLength-2] << endl;
-	realms.push_back(new realmNode(charm, lis, sum, lisArr));  //create realm with charm and LIS
+	realms.push_back(new realmNode(charm, lis, sum));  //create realm with charm and LIS
+        for(int d = 0; d < tempLength+1; d++)
+        {
+//cout << lisArr[d] << " ";
+          realms[i]->sumArr.push_back( lisArr[d] );
+        }
+//cout << endl;
 	}
 	cin >> source >> destination;                     //get source charm and destination charm
 
@@ -334,7 +355,7 @@ int main()
 //cout << realms[k]->sumArr[ed-1] << endl;
                 Graph[k][l].weight = ed;
                 Graph[k][l].gems = realms[k]->sumArr[ed-1];
-//                cout << "Graph[" << k << "][" << l << "] = " << ed << endl;
+//                cout << "Graph[" << k << "][" << l << "] = " << ed << " " << realms[k]->sumArr[ed-1] << endl;
               }
             }
           }
@@ -383,6 +404,7 @@ int main()
         }
 //        cout << s << " " << d << endl;
 
+//cout << endl;
 	int path2 = shortestPath(Graph, numRealms, s, d);
 
 //	int path = shortestPath(Graph, numRealms, d, s);
