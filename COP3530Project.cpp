@@ -68,6 +68,7 @@ sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
 				{
 					temp[0] = magiPowerOrder[k];
 					sum = temp[0];
+sums[0] = sum;
 sums2[0] = sum;
 				}
 				else
@@ -125,6 +126,7 @@ for(int t=1; t < m+1; t++)
 		}
 	}
 lisArr = sums;
+//cout << lisArr[tempLength] << endl;
 	return (tempLength + 1);  //return LIS
 }
 
@@ -329,7 +331,7 @@ int main()
               int ed = editDistance( realms[k]->charm, realms[l]->charm ); 
               if( canTravel( realms[k]->lis, ed ) )
               {
-//cout << realms[k]->sumArr[ed-1] << " " << realms[k]->sumArr[ed-2] << endl;
+//cout << realms[k]->sumArr[ed-1] << endl;
                 Graph[k][l].weight = ed;
                 Graph[k][l].gems = realms[k]->sumArr[ed-1];
 //                cout << "Graph[" << k << "][" << l << "] = " << ed << endl;
