@@ -159,7 +159,7 @@ int editDistance(string currCharm, string destCharm)
 		for (int j = 1; j <= destCharm.length(); j++)
 		{
 			if (currCharm[i - 1] == destCharm[j - 1])		//if the letters are the same, take the minimum of the left cell + 1, top cell + 1, and diagonal
-			{
+			{												//because if you are comparing sitting to kneeding, you only need to compare sitt and kneed
 				matrix[i][j] = minimum(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1]);
 			}
 			else											//if the letters are not the same, take the minimum of the left cell + 1, top cell + 1, and diagonal cell + 1
@@ -195,7 +195,7 @@ struct graphNode
 // Dijkstra's Algorithm 
 /*
 shortestPath - Calculates the shortest path between the realms
-@ param - int *Graph - pointer to 2D array to hold the realms.
+@ param - graphNode *Graph - pointer to 2D array to hold the realms.
 @ param - int numRealms - number of realms
 @ param - int sourceVertex - source realm.
 @ param - int destinationVertex - destination realm.
@@ -278,9 +278,7 @@ int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destin
 		}
 	}
 
-
 	return -1;
-
 }
 
 int main()
@@ -318,7 +316,6 @@ int main()
 		}
 	}
 	cin >> source >> destination;                     		//get source charm and destination charm
-
 
 	for (int k = 0; k < realms.size(); k++)  //for each row
 	{
