@@ -123,6 +123,7 @@ int LIS(int magiPowerOrder[], int MPOsize)
 					if (m == tempLength)
 					{
 						change = true;
+                                                temp[m] = magiPowerOrder[k];
 					}
 					else
 					{
