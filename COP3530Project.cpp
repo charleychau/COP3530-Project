@@ -9,140 +9,126 @@ using namespace std;
 struct realmNode
 {
 	string charm;                                     //contains the string of realm (charm)
-	int lis;                                          //contains LIS value
-	int sumLIS;
-	vector<int> sumArr;
+	int lis;                                          //contains LIS length value
+	int sumLIS;                                       //contains sum of LIS
+	vector<int> sumArr;                               //contains sums corresponding to LIS
 
 	realmNode(string c, int l, int s) : charm(c), lis(l), sumLIS(s) {}  //constructor for realmNode
 };
 
 
-//computes the Longest Increasing Subsequence
+//computes and returns length of Longest Increasing Subsequence, the LIS total sum, and sum values corresponding to LIS set
 //used to determine if possible to move to other realms
-int sum;  //global variable sum holds sumLIS
-int tempLength;
-int *lisArr;
+int sum;         //global variable sum holds sumLIS
+int tempLength;  //global variable tempLength holds length of LIS
+int *lisArr;     //global variable lisArr holds array of the LIS values
 int LIS(int magiPowerOrder[], int MPOsize)
 {
-	int longest = 0, mpiLength = 0;
+	int mpiLength = 0;
 	tempLength = 0;
 	mpiLength = MPOsize;
 
-	int *temp = new int[mpiLength];   // create array to keep track of LSI
-	int *temp2 = new int[mpiLength];
-	//int *sums = new int[mpiLength];
-	//int *sums2 = new int[mpiLength];
-	//int temp[mpiLength];                             //create array to keep track of LSI
-	int sum2 = 0;
-	sum = 0;
-	bool change = false;
+	int *temp = new int[mpiLength];   // create array to keep track of correct LIS
+	int *temp2 = new int[mpiLength];  // create another array to keep track of possibly new LIS
+	int sum2 = 0;                     // variable sum2 holds possibly new LIS sum
+	sum = 0;                          // variable sum holds correct LIS sum
+	bool change = false;              // change becomes true when a longer LIS is confirmed,
+                                          //   if true, temp will become temp2 and sum will become sum2
 
-	for (int k = 0; k < mpiLength; k++)               //traverse magi
+	for (int k = 0; k < mpiLength; k++)  //traverse all magi to find LIS
 	{
-		if (k == 0)
+		if (k == 0)                                 //handle the first element in the magi array
 		{
-			temp[k] = magiPowerOrder[k];                //Put first element in LSI list
-			temp2[k] = magiPowerOrder[k];
-			sum += magiPowerOrder[k];
-			//sums[k] = magiPowerOrder[k];
-			sum2 = sum;
-			//sums2[k] = magiPowerOrder[k];
+			temp[k] = magiPowerOrder[k];        //put first magi element in LIS list of temp
+			temp2[k] = magiPowerOrder[k];       //  and temp2
+			sum += magiPowerOrder[k];           //update sum value
+			sum2 = sum;                         //  and sum2
 		}
 		else
 		{
-			if (temp2[tempLength] < magiPowerOrder[k])  //if new value larger than largest in set
+			if (temp2[tempLength] < magiPowerOrder[k])  //if new value larger than largest in LIS set
 			{
-				temp[++tempLength] = magiPowerOrder[k];   //append new value to set
-				temp2[tempLength] = magiPowerOrder[k];
-				//cout << magiPowerOrder[k] << endl;
-				if (sum != sum2 && change == true)
+				temp[++tempLength] = magiPowerOrder[k];   //append new value to temp set
+				temp2[tempLength] = magiPowerOrder[k];    //  and temp2
+
+				if (sum != sum2 && change == true)        //if update of LIS is needed
 				{
-					sum = sum2;
-					temp = temp2;
-					//sums = sums2;
+					sum = sum2;                       //update sum value
+					temp = temp2;                     //update temp array
 				}
-				sum += magiPowerOrder[k];
-				//sums[tempLength] = sums[tempLength-1] + magiPowerOrder[k];
-				sum2 = sum;
-				//sums2[tempLength] = sums2[tempLength-1] + magiPowerOrder[k];
-				change = false;
+
+				sum += magiPowerOrder[k];                 //add new value to total sum
+				sum2 = sum;                               //  update sum2
+				change = false;                           //reset change
 			}
-			else if (temp[0] > magiPowerOrder[k])      //if new value less than smallest in set
+			else if (temp[0] > magiPowerOrder[k])  //if new value less than smallest in LIS set
 			{
-				if (tempLength == 0)
+				if (tempLength == 0)                     //if array only has one element
 				{
-					temp[0] = magiPowerOrder[k];
-					temp2[0] = magiPowerOrder[k];
-					sum = temp[0];
-					//sums[0] = sum;
-					//sums2[0] = sum;
+					temp[0] = magiPowerOrder[k];     //replace element in temp
+					temp2[0] = magiPowerOrder[k];    //  and temp2
+					sum = temp[0];                   //update sum with value
 				}
-				else
+				else                                     //if array has more than one element
 				{
-					sum2 -= temp[0];
-					//temp[0] = magiPowerOrder[k];              //replace smallest value with new value
-					temp2[0] = magiPowerOrder[k];
-					sum2 += temp[0];
-					//sums2[0] = sum2;
+					sum2 -= temp[0];                 //subtract first element from sum2 total
+					temp2[0] = magiPowerOrder[k];    //replace first element with new smallest element
+					sum2 += temp[0];                 //add new smallest value to sum2 total
 				}
 			}
-			else                                        //binary search (nlogn)
+			else  //binary search (nlogn) for where new element fits in list
 			{
 				int l = 0, m = 0, r = 0;
 				r = tempLength;
-				while (l <= r)
+				while (l <= r)                                 //while there is more to search
 				{
 					m = (l + r) / 2;
-					if (temp[m] == magiPowerOrder[k])
+					if (temp[m] == magiPowerOrder[k])      //if element already in list
 					{
-						break; //break out of loop
+						break;                         //break out of loop
 					}
-					else if (temp[m] < magiPowerOrder[k])
+					else if (temp[m] < magiPowerOrder[k])  //if new value greater than middle value
 					{
-						l = m + 1;
+						l = m + 1;                     //update left
 					}
-					else //temp[m] > magiPowerOrder[k]
+					else //temp[m] > magiPowerOrder[k]     //if new value less than middle value
 					{
-						r = m - 1;
+						r = m - 1;                     //update right
 					}
 				}
 
-				if (l <= r)
+				if (l <= r)  //if new element already in list
 				{
 					//magiPowerOrder[k] already in list
 				}
-				else
+				else  //if not found in list
 				{
-					sum2 -= temp[m];
-					temp2[m] = magiPowerOrder[k];  //replace first larger-than-new-value with new value
-					sum2 += temp[m];
-					//for(int t=1; t < m+1; t++)
-					//{
-					//  sums2[t] = sums2[t-1] + temp[t];
-					//}
-					if (m == tempLength)
+					sum2 -= temp[m];               //subtract old element from sum2 total
+					temp2[m] = magiPowerOrder[k];  //replace first larger-than-new value with new value
+					sum2 += temp[m];               //add new element to sim2 total
+
+					if (m == tempLength)  //if new element replaces the old largest element in list
 					{
-						change = true;
-                                                temp[m] = magiPowerOrder[k];
+						change = true;                //indicate the temp and sum updates need to occur
+                                                temp[m] = magiPowerOrder[k];  //replace largest value in set with new largest value
 					}
-					else
+					else  //if new element is between smallest and largest values in temp set
 					{
-						change = false;
+						change = false;  //ensure no unneeded update occurs
 					}
 				}
 			}
 		}
 	}
-	int *a = new int[tempLength + 1];
-	a[0] = temp[0];
-	for (int g = 1; g < tempLength + 1; g++)
+
+	int *a = new int[tempLength + 1];            //create new array a to store sum values
+	a[0] = temp[0];                              //set first element of array to sum of first element in temp
+	for (int g = 1; g < tempLength + 1; g++)     //for all elements in temp
 	{
-		a[g] = a[g - 1] + temp[g];
-		//  cout << a[g] << " ";
+		a[g] = a[g - 1] + temp[g];           //add temp element to previous sum total and store in current sum element
 	}
-	//cout << endl;
-	lisArr = a;
-	//cout << " " << tempLength + 1 << " " << sum << " " << lisArr[tempLength] << endl;
+
+	lisArr = a;  //set global array lisArr to equal a array
 	return (tempLength + 1);  //return LIS
 }
 
@@ -215,17 +201,17 @@ shortestPath - Calculates the shortest path between the realms
 @ param - int destinationVertex - destination realm.
 @ returns - int shortest path or -1 if no shortest path found.
 */
-int numGems;
+int numGems;  //global variable numGems contains total number of gems needed to traverse the shortest path
 int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destinationVertex)
 {
 	int shortPath = 0;
-	numGems = 0;
+	numGems = 0;  //reset to zero
 
 	vector<int> dist(numRealms);
 
 	vector<bool> vist(numRealms);
 
-	vector<int> gems(numRealms);
+	vector<int> gems(numRealms);  //create vector of gems to hold total gems at each position
 
 	for (int i = 0; i < numRealms; i++)
 	{
@@ -233,11 +219,11 @@ int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destin
 
 		vist[i] = false;        // Make visited realms all false 
 
-		gems[i] = 0;
+		gems[i] = 0;            //begin with each total gem value set to zero
 	}
 
 	dist[sourceVertex] = 0;     // Make distance from source vertex to itself zero
-	gems[sourceVertex] = 0;
+	gems[sourceVertex] = 0;     //set total gems to traverse to itself as zero
 	int i = 0;
 
 	for (i = 0; i < numRealms; i++)
@@ -264,7 +250,7 @@ int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destin
 		if (index == destinationVertex)
 		{
 			shortPath = dist[index];
-			numGems = gems[index];
+			numGems = gems[index];  //set numGems to total number of gems needed for shortest path traversal
 
 			if (shortPath == INT_MAX)
 				return -1;
@@ -275,18 +261,18 @@ int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destin
 		for (int j = 0; j < numRealms; j++)
 		{
 			int distance = 0;
-			int ng = 0;
+			int ng = 0;  //temp holder of number of gems set to zero
 
 			if (vist[j] == false && Graph[index][j].weight > 0)
 			{
 
 				distance = dist[index] + Graph[index][j].weight;
-				ng = gems[index] + Graph[index][j].gems;
+				ng = gems[index] + Graph[index][j].gems;  //update temp holder of number of gems to new total gems
 
 				if (distance < dist[j])
 				{
 					dist[j] = distance;
-					gems[j] = ng;
+					gems[j] = ng;  //update current total number of gems with new number if path is shorter
 				}
 			}
 		}
@@ -302,7 +288,7 @@ int main()
 	int numRealms = 0, numMagi = 0;
 	string charm = "", source = "", destination = "";
 
-	cin >> numRealms;										//get number of realms
+	cin >> numRealms;						//get number of realms
 									  
 	graphNode **Graph = new graphNode*[numRealms];			// Allocate 2D Graph array 
 
@@ -311,53 +297,53 @@ int main()
 		Graph[i] = new graphNode[numRealms];
 	}
 
-	vector<realmNode*> realms;                        //vector containing all realms
-	for (int i = 0; i < numRealms; i++)                //for each realm
+	vector<realmNode*> realms;                        		//vector containing all realms
+	for (int i = 0; i < numRealms; i++)                		//for each realm
 	{
-		cin >> charm;                                   //get charm associated with realm
-		cin >> numMagi;                                 //get the number of Magi that will be encountered
+		cin >> charm;                                   	//get charm associated with realm
+		cin >> numMagi;                                 	//get the number of Magi that will be encountered
 
-		int *MagiPowerOrder = new int[numMagi];			//create array
+		int *MagiPowerOrder = new int[numMagi];			//create array for Magi
 
-		for (int j = 0; j < numMagi; j++)                //for each magi
+		for (int j = 0; j < numMagi; j++)                	//for each magi
 		{
-			cin >> MagiPowerOrder[j];                     //get rank of magi
+			cin >> MagiPowerOrder[j];                       //get rank of magi
 		}
-		int lis = LIS(MagiPowerOrder, numMagi);         //compute Longest Increasing Substring (LIS)
+		int lis = LIS(MagiPowerOrder, numMagi);        		//compute Longest Increasing Substring (LIS)
 
-		realms.push_back(new realmNode(charm, lis, sum));  //create realm with charm and LIS
-		for (int d = 0; d < tempLength + 1; d++)
+		realms.push_back(new realmNode(charm, lis, sum));  	//create realm with charm, length of LIS, and total sum of gems
+		for (int d = 0; d < tempLength + 1; d++)		//for each element in gem sum array
 		{
-			realms[i]->sumArr.push_back(lisArr[d]);
+			realms[i]->sumArr.push_back(lisArr[d]);		//add sum to vector in realmNode
 		}
 	}
-	cin >> source >> destination;                     //get source charm and destination charm
+	cin >> source >> destination;                     		//get source charm and destination charm
 
 
-	for (int k = 0; k < realms.size(); k++)   
+	for (int k = 0; k < realms.size(); k++)  //for each row
 	{
-		for (int l = 0; l < realms.size(); l++)
+		for (int l = 0; l < realms.size(); l++)  //for each col
 		{
-			if (k != l)
+			if (k != l)  //if row != col
 			{
-				int ed = editDistance(realms[k]->charm, realms[l]->charm);
-				if (canTravel(realms[k]->lis, ed))
+				int ed = editDistance(realms[k]->charm, realms[l]->charm);  //get edit distance
+				if (canTravel(realms[k]->lis, ed))                          //if LIS > edit distance
 				{
-					Graph[k][l].weight = ed;
-					Graph[k][l].gems = realms[k]->sumArr[ed - 1];
+					Graph[k][l].weight = ed; 			    //update corresponding graph weight
+					Graph[k][l].gems = realms[k]->sumArr[ed - 1];       // and number of gems needed
 				}
 			}
 		}
 	}
 	
 	int s = 0, d = 0;
-	for (int i = 0; i < realms.size() && (s == 0 || d == 0); i++)
+	for (int i = 0; i < realms.size() && (s == 0 || d == 0); i++)  //until source and destination realm values are found
 	{
-		if (source == realms[i]->charm)
+		if (source == realms[i]->charm)  //if source
 		{
 			s = i;
 		}
-		if (destination == realms[i]->charm)
+		if (destination == realms[i]->charm)  //if destination
 		{
 			d = i;
 		}
