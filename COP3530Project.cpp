@@ -195,7 +195,7 @@ struct graphNode
 // Dijkstra's Algorithm 
 /*
 shortestPath - Calculates the shortest path between the realms
-@ param - int *Graph - pointer to 2D array to hold the realms.
+@ param - graphNode *Graph - pointer to 2D array to hold the realms.
 @ param - int numRealms - number of realms
 @ param - int sourceVertex - source realm.
 @ param - int destinationVertex - destination realm.
