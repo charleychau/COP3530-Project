@@ -206,15 +206,15 @@ struct graphNode
 	int gems;
 };
 
-int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destinationVertex);    // Dijkstra Algorithm 
-																								 /*
-																								 shortestPath - Calculates the shortest path between the realms
-																								 @ param - int *Graph - pointer to 2D array to hold the realms.
-																								 @ param - int numRealms - number of realms
-																								 @ param - int sourceVertex - source realm.
-																								 @ param - int destinationVertex - destination realm.
-																								 @ returns - int shortest path or -1 if no shortest path found.
-																								 */
+// Dijkstra Algorithm 
+/*
+shortestPath - Calculates the shortest path between the realms
+@ param - int *Graph - pointer to 2D array to hold the realms.
+@ param - int numRealms - number of realms
+@ param - int sourceVertex - source realm.
+@ param - int destinationVertex - destination realm.
+@ returns - int shortest path or -1 if no shortest path found.
+*/
 int numGems;
 int shortestPath(graphNode *Graph[], int numRealms, int sourceVertex, int destinationVertex)
 {
@@ -314,10 +314,6 @@ int main()
 		Graph[i] = new graphNode[numRealms];
 	}
 
-	// TODO:  Shane needs to populate this array 
-
-
-
 	vector<realmNode*> realms;                        //vector containing all realms
 	for (int i = 0; i < numRealms; i++)                //for each realm
 	{
@@ -368,30 +364,7 @@ int main()
 
 
 
-	//need to connect realms to other accessible realms using canTravel and editDistance functions
-
-	//need to find shortest path from source realm to destination realm (Algorithm 3)
-
-	// Input 1 
-
-	//Graph[0][1] = 4;
-	//Graph[0][2] = 2;
-	//Graph[1][2] = 3;
-	//Graph[1][3] = 3;
-	//Graph[2][0] = 2;
-	//Graph[3][1] = 3;
-	//Graph[3][2] = 3;
-
-	// Input 2
-
-	//Graph[0][1] = 4;
-	//Graph[1][0] = 4;
-	//Graph[1][2] = 4;
-
-	// NOTE - When you do your part Shane this is how the graph should be realized 
-	// Source realm = row index
-	// Destination realm = column index
-
+	
 	int s = 0, d = 0;
 	for (int i = 0; i < realms.size() && (s == 0 || d == 0); i++)
 	{
